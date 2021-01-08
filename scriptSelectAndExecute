@@ -1,0 +1,78 @@
+#Select and run scripts from Documents Directory
+from ptoled import PTOLEDDisplay
+from ptbuttons import PTUpButton, PTDownButton, PTSelectButton, PTCancelButton
+from time import sleep
+import os
+miniScreen = PTOLEDDisplay()
+miniScreen.set_max_fps(1) #FPS
+canvas = miniScreen.canvas
+canvas.set_font_size(20) #Font Size
+
+
+def listScripts():
+    scripts = os.popen('ls')
+    return scripts
+    
+def printText(text):
+    canvas.clear()
+    canvas.multiline_text(canvas.top_left(), text)
+    miniScreen.draw()
+
+scripts = listScripts()
+scripts = list(scripts)
+current = 0
+
+#button effect
+up = PTUpButton()
+down = PTDownButton()
+select = PTSelectButton()
+cancel = PTCancelButton()
+
+def up_act():
+    global current
+    global scripts
+    if current < (len(scripts)-1):
+        current += 1
+    else:
+        current = 0
+    printText('{}'.format(scripts[current]))
+def down_act():
+    global current
+    global scripts
+    if current > 0:
+        current -= 1
+    else:
+        current = (len(scripts)-1)
+    printText('{}'.format(scripts[current]))
+def select_act():
+    global scripts
+    global current
+    script = scripts[current]
+    printText('Running {}'.format(script))
+    os.system('python3 {}'.format(script))
+def cancel_act():
+    printText('Quitting Script')
+    sleep(3)
+    os.system('quit()')
+
+def start():
+    canvas.clear()
+    sleep(1)
+    printText('Running')
+    sleep(1)
+    printText('Running.')
+    sleep(1)
+    printText('Running..')
+    sleep(1)
+    printText('Running...')
+    sleep(1)
+    printText('{}'.format(scripts[current]))
+    sleep(999999999) #Don't know why, but this hacky thing is required to prevent a crash within a dependency.
+    sleep(999999999) #Any larger will cause a buffer overflow
+
+up.when_pressed = up_act
+down.when_pressed = down_act
+select.when_pressed = select_act
+cancel.when_pressed = cancel_act
+    
+start()
